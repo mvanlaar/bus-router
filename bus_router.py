@@ -129,6 +129,18 @@ def processPolylines():
 							legpoints.append(dictpoint)
 
 						gmaps.close()
+					elif args.dir == 'mapbox':
+						if linedata['code'] != "Ok":
+							continue
+						print linedata['routes'][0]['geometry']
+						points = decode(linedata['routes'][0]['geometry'])
+						# print points
+						for point in points:
+							dictpoint = {'x': point[0]/10, 'y': point[1]/10}
+							
+							legpoints.append(dictpoint)
+
+						gmaps.close()
 
 			# print legpoints
 			
@@ -208,6 +220,7 @@ def getDirections():
 	with open("env.json", 'rb') as envfile:
 		env = json.load(envfile)
 		google_key = env["google_key"]
+		mapbox_key = env["mapbox_key"]
 	datadir = os.path.join(os.getcwd(), 'data')
 	polydir = os.path.join(datadir, 'polylines')
 	data = json.load(json_data, object_hook=_decode_dict)
@@ -248,6 +261,8 @@ def getDirections():
 						directionscall(google_key, stop, origin, dest, waypoints, fname)
 					elif args.dir == 'osrm':
 						osrmDirectionsCall(stop, origin, dest, osrmpoints, fname)
+					elif args.dir == 'mapbox':
+						mapboxDirectionsCall(mapbox_key, stop, origin, dest, osrmpoints, fname)
 					waypoints = ""
 					osrmpoints = []
 					segmentcount += 1
@@ -261,6 +276,8 @@ def getDirections():
 					directionscall(google_key, stop, origin, dest, waypoints, fname)
 				elif args.dir == 'osrm':
 					osrmDirectionsCall(stop, origin, dest, osrmpoints, fname)
+				elif args.dir == 'mapbox':
+					mapboxDirectionsCall(mapbox_key, stop, origin, dest, osrmpoints, fname)
 				stopcount = 1
 				waypoints = ""
 				osrmpoints = []
@@ -293,6 +310,24 @@ def osrmDirectionsCall(stop, origin, dest, osrmpoints, fname):
 		viastring += point + ';'
 
 	params = origin + ';' + viastring +  dest + '?geometries=polyline&overview=full'
+	# params = urllib.urlencode({'loc': origin, 'loc': dest, 'waypoints': waypoints, 'sensor': 'false','key': google_key})
+	print params
+	# if waypoints == "":
+	with open("log.txt", 'a') as log:
+		log.write(base + params + '\n')
+	response = urllib.urlopen(base + params)
+	data = json.load(response)
+	with open(fname, 'w') as outfile:
+		json.dump(data, outfile)
+		
+def mapboxDirectionsCall(mapbox_key, stop, origin, dest, osrmpoints, fname):
+	print "getting dirs..."
+	base = 'https://api.mapbox.com/directions/v5/mapbox/driving/'
+	viastring = ""
+	for point in osrmpoints:
+		viastring += point + ';'
+
+	params = origin + ';' + viastring +  dest + '.json?access_token=' + mapbox_key + '&geometries=polyline&overview=full'
 	# params = urllib.urlencode({'loc': origin, 'loc': dest, 'waypoints': waypoints, 'sensor': 'false','key': google_key})
 	print params
 	# if waypoints == "":

@@ -43,7 +43,7 @@ Final word: you can adjust the "smoothness" of the final shapes, by changing the
 optional arguments:
   -h, --help           show this help message and exit
   -d osrm, --dir osrm  specify the directions provider, either "goog" or
-                       "osrm"
+                       "osrm" or "mapbox"
   -s, --shapes         create shapes.txt from GeoJSON
   -l, --lines          process polylines if directions calls have already been
                        made
@@ -64,6 +64,9 @@ The default option for creating bus routes here is the [Open Source Routing Mach
 Be sure that any use of this tool is respectful of OSRM's [API Usage Policy](https://github.com/Project-OSRM/osrm-backend/wiki/Api-usage-policy).
 
 Big thanks to OSRM for creating a routing engine for the entire globe!
+
+### Mapbox Directions
+You must supply a mapbox_key value in env.json
 
 ## Known Limitations
 
